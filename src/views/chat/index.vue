@@ -357,7 +357,7 @@ function handleDelete(index: number) {
     return
 
   dialog.warning({
-    title: t('chat.deleteMessage'),
+    title: '你好',
     content: t('chat.deleteMessageConfirm'),
     positiveText: t('common.yes'),
     negativeText: t('common.no'),
@@ -512,7 +512,9 @@ onUnmounted(() => {
         <div class="flex items-center justify-between space-x-2">
           <HoverButton v-if="!isMobile" @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">
-              <SvgIcon icon="ri:delete-bin-line" />
+              <!-- <SvgIcon icon="ri:delete-bin-line" /> -->
+              <SvgIcon icon="ri:settings-4-line" />
+
             </span>
           </HoverButton>
           <HoverButton v-if="!isMobile" @click="handleExport">

@@ -73,6 +73,10 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
         options.maxResponseTokens = 4096
       }
     }
+    else {
+      options.maxModelTokens = 128000
+      options.maxResponseTokens = 16384
+    }
 
     if (isNotEmptyString(OPENAI_API_BASE_URL)) {
       // if find /v1 in OPENAI_API_BASE_URL then use it
@@ -81,6 +85,8 @@ let api: ChatGPTAPI | ChatGPTUnofficialProxyAPI
       else
         options.apiBaseUrl = `${OPENAI_API_BASE_URL}/v1`
     }
+    options.maxModelTokens = 128000
+    options.maxResponseTokens = 16384
 
     setupProxy(options)
 

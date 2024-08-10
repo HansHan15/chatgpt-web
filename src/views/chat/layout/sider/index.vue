@@ -6,7 +6,7 @@ import List from './List.vue'
 import Footer from './Footer.vue'
 import { useAppStore, useChatStore } from '@/store'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { PromptStore, SvgIcon } from '@/components/common'
+import { PromptStore } from '@/components/common'
 import { t } from '@/locales'
 
 const appStore = useAppStore()
@@ -98,13 +98,13 @@ watch(
         </div>
         <div class="flex items-center p-4 space-x-4">
           <div class="flex-1">
-            <NButton block @click="show = true">
+            <NButton block @click="handleClearAll">
               {{ $t('store.siderButton') }}
             </NButton>
           </div>
-          <NButton @click="handleClearAll">
+          <!-- <NButton @click="handleClearAll">
             <SvgIcon icon="ri:close-circle-line" />
-          </NButton>
+          </NButton> -->
         </div>
       </main>
       <Footer />
