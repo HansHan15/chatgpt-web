@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
 import { toPng } from 'html-to-image'
+import { saveAs } from 'file-saver'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
@@ -35,7 +36,7 @@ const { uuid } = route.params as { uuid: string }
 
 const dataSources = computed(() => chatStore.getChatByUuid(+uuid))
 const conversationList = computed(() => dataSources.value.filter(item => (!item.inversion && !!item.conversationOptions)))
-
+const result = ref<string>('')
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
@@ -51,13 +52,29 @@ dataSources.value.forEach((item, index) => {
   if (item.loading)
     updateChatSome(+uuid, index, { loading: false })
 })
+const saveToFile = () => {
+  const data = result.value
+  const filename = 'result.txt'
+  const blob = new Blob([data], { type: 'text/plain;charset=utf-8' })
+  saveAs(blob, filename)
+}
 
 function handleSubmit() {
   onConversation()
 }
 
 async function onConversation() {
-  let message = prompt.value
+  const tempMessage = prompt.value
+  let message = `${prompt.value} 整理成以下示例格式：
+【单选题】1. 关于《花间集》说法错误的是（   ）
+A.作者是赵崇佐
+B.收录当时流行歌曲歌词
+C.针砭时弊
+D.内容是美女与爱情
+答案：C
+难易程度：中
+答案解析：花间集的答案解析
+知识点：知识点1；知识点2`
 
   if (loading.value)
     return
@@ -71,7 +88,7 @@ async function onConversation() {
     +uuid,
     {
       dateTime: new Date().toLocaleString(),
-      text: message,
+      text: tempMessage,
       inversion: true,
       error: false,
       conversationOptions: null,
@@ -137,6 +154,9 @@ async function onConversation() {
             if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
               options.parentMessageId = data.id
               lastText = data.text
+
+              // eslint-disable-next-line no-console
+              console.log(data.text)
               message = ''
               return fetchChatAPIOnce()
             }
@@ -268,6 +288,7 @@ async function onRegenerate(index: number) {
             if (openLongReply && data.detail.choices[0].finish_reason === 'length') {
               options.parentMessageId = data.id
               lastText = data.text
+              result.value = lastText
               message = ''
               return fetchChatAPIOnce()
             }
@@ -517,7 +538,7 @@ onUnmounted(() => {
 
             </span>
           </HoverButton>
-          <HoverButton v-if="!isMobile" @click="handleExport">
+          <HoverButton v-if="!isMobile" @click="saveToFile">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:download-2-line" />
             </span>
