@@ -24,8 +24,70 @@ const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
 const route = useRoute()
 const dialog = useDialog()
 const ms = useMessage()
-
+const dialogVisible = ref(false)
+const difficulty = ref('')
+const language = ref('')
+const quantity = ref('')
+const course = ref('')
+const questionType = ref('')
+const knowledge = ref('')
 const chatStore = useChatStore()
+const dfOptions = [
+  {
+    value: '高',
+    label: '困难',
+  },
+  {
+    value: '中等',
+    label: '中等',
+  },
+  {
+    value: '低',
+    label: '简单',
+  },
+  {
+    value: '随机',
+    label: '随机',
+  },
+]
+const lgOptions = [
+  {
+    value: '英文',
+    label: '英文',
+  },
+  {
+    value: '中文',
+    label: '中文',
+  },
+]
+const courseOptions = [
+  {
+    value: 'C++面向对象程序设计，面向大一学生',
+    label: '面向对象程序设计',
+  },
+  {
+    value: '软件工程概论，面向大二学生',
+    label: '软件工程概论',
+  },
+]
+const qtOptions = [
+  {
+    value: '单项选择题',
+    label: '单选题',
+  },
+  {
+    value: '多项选择题（题目的正确选项多余1个）',
+    label: '多选题',
+  },
+  {
+    value: '判断题',
+    label: '判断题',
+  },
+  {
+    value: '简答题',
+    label: '简答题',
+  },
+]
 
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
@@ -40,6 +102,16 @@ const result = ref<string>('')
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
 const inputRef = ref<Ref | null>(null)
+const formLabelWidth = '140px'
+const createPrompt = () => {
+  const promptText = `${quantity.value}道${questionType.value}。科目是${course.value}。知识点是${knowledge.value}。题目难度${difficulty.value}。用${language.value}出题。`
+  prompt.value = promptText
+  dialogVisible.value = false
+}
+
+const openDialog = () => {
+  dialogVisible.value = true
+}
 
 // 添加PromptStore
 const promptStore = usePromptStore()
@@ -481,6 +553,52 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <el-dialog
+    v-model="dialogVisible"
+    title="出题选项"
+    width="500"
+  >
+    <el-form>
+      <el-form-item label="选择科目" :label-width="formLabelWidth">
+        <!-- <el-input v-model="form.name" autocomplete="off" /> -->
+        <el-select v-model="course" placeholder="选择科目">
+          <el-option v-for="item in courseOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="题型" :label-width="formLabelWidth">
+        <el-select v-model="questionType" placeholder="题型">
+          <el-option v-for="item in qtOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="数量" :label-width="formLabelWidth">
+        <el-input v-model="quantity" placeholder="数量" />
+      </el-form-item>
+      <el-form-item label="知识点" :label-width="formLabelWidth">
+        <el-input v-model="knowledge" placeholder="知识点" />
+      </el-form-item>
+      <el-form-item label="题目难度" :label-width="formLabelWidth">
+        <el-select v-model="difficulty" placeholder="题目难度">
+          <el-option v-for="item in dfOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="题目语言" :label-width="formLabelWidth">
+        <el-select v-model="language" placeholder="语言">
+          <el-option v-for="item in lgOptions" :key="item.value" :label="item.label" :value="item.value" />
+        </el-select>
+      </el-form-item>
+    </el-form>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">
+          取消
+        </el-button>
+        <el-button type="success" @click="createPrompt">
+          确定
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
   <div class="flex flex-col w-full h-full">
     <HeaderComponent
       v-if="isMobile"
@@ -531,7 +649,7 @@ onUnmounted(() => {
     <footer :class="footerClass">
       <div class="w-full max-w-screen-xl m-auto">
         <div class="flex items-center justify-between space-x-2">
-          <HoverButton v-if="!isMobile" @click="handleClear">
+          <HoverButton v-if="!isMobile" @click="openDialog">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <!-- <SvgIcon icon="ri:delete-bin-line" /> -->
               <SvgIcon icon="ri:settings-4-line" />
